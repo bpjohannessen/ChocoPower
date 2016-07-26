@@ -1,5 +1,5 @@
 # ChocoPower
-Smart chocolatey installer for PowerShell
+Smart chocolatey installer for PowerShell. It is under heavy development. Weird stuff may appear in code.
 
 ## To-do
 - [ ] Parameter that accepts several packages (`.\setup.ps1 -install ruby vlc python`)
