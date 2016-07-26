@@ -55,16 +55,57 @@ function Package-Install
 
 function Select-Package-Install
 {
-
     Param (
-        [string] $forcePackages
+        [System.Collections.ArrayList]$packageOptions,
+        [System.Collections.ArrayList]$toInstall
     )
+
+    Write-Warning "In Select-Package-Install. Checking datatypes of packageOptions and toInstall now"
+    Write-Host ""
+    
+    $packageOptions.GetType()
+
+    foreach($x in $packageOptions) { Write-Host $x }
+
+    Write-Warning "toInstall GetType::"
+
+    $toInstall.GetType()
+
+    #
+    # This is a lot of debugging going on
+    # The variable does only have one key????
+    #
+
+
+    Write-Warning "----------------"
+
+    $toInstall[0]
+    
+    Write-Warning "xxxx"
+
+    $toInstall[1]
+
+    Write-Warning "?"
+
+    #foreach($z in $toInstall)
+    #{
+    #    Write-Host $z
+    #}
 
     <#
         Array to contain packages in
     #>
     
     $toBeForced = New-Object System.Collections.ArrayList
+
+    if($packageOptions.Count -eq $toInstall.Count)
+    {
+        Write-Host "Match"
+    }
+    else
+    {
+        Write-Host "No match"
+    }
 
     <#
         The user might input
@@ -90,6 +131,15 @@ function Select-Package-Install
 #>
 
 function Ask-User {
+
+    Param (
+        [System.Collections.ArrayList]$packageOptions
+    )
+
+    Write-Warning "Will foreach in Ask-User"
+
+    foreach($n in $packageOptions) { Write-host $n }
+       
 
     $title = "Add force parameter?"
     $message = "Do you want to re-run the installer with --force? Se [M] More info for information about installing packages manually"
@@ -138,12 +188,30 @@ function Ask-User {
             Write-Host "You can select which packages you want to force install. Select by writing the number(s) of the package(s)"
             Write-Host "E.g. for package 0: 0"
             Write-Host "E.g.: for several packages: 0, 3, 7"
-
-            $forcePackages = Read-Host -Prompt "Which packages do you want to install?"
+            
+            $readForcePackages = Read-Host -Prompt "Which packages do you want to install?"
 
             ##
 
-            Select-Package-Install -forcePackages $forcePackages
+            #foreach($a in $packageOptions) { Write-Host "- $a" }
+
+            Write-Host "Will do Select-Package-Install"
+            Write-Host "Checking datatype of readForcePackages"
+
+            $temp = $readForcePackages.Replace(" ", "")
+            $temp2 = New-Object System.Collections.ArrayList
+            $temp3 = $temp -split ","
+            $temp2.Add($temp3)
+            #$temp2 = $readForcePackages
+
+            Write-Warning "a"
+            $temp2.GetType()
+            Write-Warning "b"
+
+            
+
+            
+            Select-Package-Install -packageOptions $packageOptions -toInstall $temp2 #$readForcePackages
         }
         
         # Output if More info is selected
@@ -246,9 +314,15 @@ Function Parser
 
             <#
                 Promting the user for further action
+                Sending the list of installed packages in
+                (Probably not a good solution)
             #>
-            Ask-User
+            Write-Host "Will do Ask-User -packageOptions installedPackages -- this is crucial!!"
+            Write-Host "Checking datatype of installedPackages"
 
+            $installedPackages.GetType()
+
+            Ask-User -packageOptions $installedPackages
          
         }
     }
