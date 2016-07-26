@@ -15,9 +15,6 @@ function Package-Install
 
     Process
     {
-        #Write-Host "Starting Process"
-        #Write-Host ""
-
         if($force -eq $true)
         {
            # Write-Warning "Force is true"
@@ -29,9 +26,6 @@ function Package-Install
 
         $chocoCommand = "choco install $package vlc -y $forceParameter"
         iex $chocoCommand
-
-        #Write-Host ""
-        #Write-Host "Ending Process"
     }
 
     End
@@ -173,9 +167,10 @@ Function Parser
      
         if($forceDetected -eq $true -or $installedPackages)
         {
-
-           
-
+        
+            <#
+                Printing out warnings about already installed packages
+            #>        
             Write-Warning "Some packages are installed"
             Write-Warning "Do you want to re-run the installer with --force?"
             Write-Warning "This applies to the following package(s):"
@@ -185,15 +180,14 @@ Function Parser
                 Write-Host "- " $installedPackage
             }
 
-           # write-host $_
-
+            <#
+                Promting the user for further action
+            #>
             Ask-User
-            # Promt the user Y/N option and re-run testInstall -package $package --force
+
          
         }
     }
 }
 
 Package-Install -package ruby vlc | Parser
-
-
