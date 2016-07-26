@@ -60,16 +60,17 @@ function Select-Package-Install
         [System.Collections.ArrayList]$toInstall
     )
 
-    Write-Warning "In Select-Package-Install. Checking datatypes of packageOptions and toInstall now"
-    Write-Host ""
+    #Write-Warning "In Select-Package-Install. Checking datatypes of packageOptions and toInstall now"
+    #Write-Host ""
     
     $packageOptions.GetType()
 
     foreach($x in $packageOptions) { Write-Host $x }
 
-    Write-Warning "toInstall GetType::"
+   # Write-Warning "toInstall GetType::"
 
-    $toInstall.GetType()
+    #$toInstall.GetType()
+    #$toInstall.Count
 
     #
     # This is a lot of debugging going on
@@ -77,15 +78,15 @@ function Select-Package-Install
     #
 
 
-    Write-Warning "----------------"
+    #Write-Warning "----------------"
 
-    $toInstall[0]
-    
-    Write-Warning "xxxx"
+    #$toInstall[0]
+    #
+    #Write-Warning "xxxx"
 
-    $toInstall[1]
+    #$toInstall[1]
 
-    Write-Warning "?"
+    #Write-Warning "?"
 
     #foreach($z in $toInstall)
     #{
@@ -97,6 +98,11 @@ function Select-Package-Install
     #>
     
     $toBeForced = New-Object System.Collections.ArrayList
+
+    Write-Host "-------"
+    Write-Host "You have $packageOptions.Count options for installable packages"
+    Write-Host "You have chosen $toInstall.Count packages to install"
+    Write-Host "Is this a match?"
 
     if($packageOptions.Count -eq $toInstall.Count)
     {
@@ -113,14 +119,15 @@ function Select-Package-Install
         And we need to fix this
     #>
 
-    $temp = $forcePackages -replace " ",""
-    $toBeForced = $temp -split ","
+    #$temp = $forcePackages -replace " ",""
+    #$toBeForced = $temp -split ","
 
-    foreach($f in $toBeForced)
-    {
-        Write-Host $f
-    }
+    #foreach($f in $toBeForced)
+    #{
+    #    Write-Host $f
+    #}
 
+    Write-Host ""
     Write-Host "Welcome to the Select-Package-Install"
 }
 
@@ -184,6 +191,10 @@ function Ask-User {
 
         2
         {
+
+            #array for 1,2,3 etc
+            $tempx = New-Object System.Collections.ArrayList
+
             Write-Host ""
             Write-Host "You can select which packages you want to force install. Select by writing the number(s) of the package(s)"
             Write-Host "E.g. for package 0: 0"
@@ -191,27 +202,31 @@ function Ask-User {
             
             $readForcePackages = Read-Host -Prompt "Which packages do you want to install?"
 
+            #$readForcePackages
+
+
             ##
 
             #foreach($a in $packageOptions) { Write-Host "- $a" }
 
-            Write-Host "Will do Select-Package-Install"
-            Write-Host "Checking datatype of readForcePackages"
+            #Write-Host "Will do Select-Package-Install"
+            #Write-Host "Checking datatype of readForcePackages"
 
             $temp = $readForcePackages.Replace(" ", "")
-            $temp2 = New-Object System.Collections.ArrayList
-            $temp3 = $temp -split ","
-            $temp2.Add($temp3)
-            #$temp2 = $readForcePackages
 
-            Write-Warning "a"
-            $temp2.GetType()
-            Write-Warning "b"
+            $tempx = $temp.Split(",")
+
+            #Write-Warning "tempx gettype"
+
+            #$tempx.GetType()
+
+
+            #$temp3 = $temp -split ","
+            #$temp2.Add($temp3)
+            #$temp2 = $readForcePackages           
 
             
-
-            
-            Select-Package-Install -packageOptions $packageOptions -toInstall $temp2 #$readForcePackages
+            Select-Package-Install -packageOptions $packageOptions -toInstall $tempx #$readForcePackages
         }
         
         # Output if More info is selected
@@ -317,8 +332,8 @@ Function Parser
                 Sending the list of installed packages in
                 (Probably not a good solution)
             #>
-            Write-Host "Will do Ask-User -packageOptions installedPackages -- this is crucial!!"
-            Write-Host "Checking datatype of installedPackages"
+            #Write-Host "Will do Ask-User -packageOptions installedPackages -- this is crucial!!"
+            #Write-Host "Checking datatype of installedPackages"
 
             $installedPackages.GetType()
 
