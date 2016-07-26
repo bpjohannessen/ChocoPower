@@ -97,17 +97,24 @@ function Ask-User {
 # If "--force" is detected, ask the user with Ask-User
 Function Parser
 {
-    #Param ($Param1)
+
     Begin {
-        #write-host "Starting"
+        <#
+            Creating an Array for saving installed packages for later output
+        #>
+        $installedPackages = New-Object System.Collections.Generic.List[System.Object]
 
-        $installedPackages = [System.Collections.ArrayList]@()
-
+        <#
+            Writing information about the installer
+            This can be customized by the creator of the installer / company / whatever
+        #>
+        Write-Host "`n============================="
+        Write-Host "Starting ChocoPower Installer"
+        Write-Host "=============================`n"
+        
     }
+
     Process {
-        
-        #$installedPackages = @()
-        
 
         foreach($line in $_)
         {
@@ -129,7 +136,7 @@ Function Parser
                 
                 #Write-Warning "Split line: $splitLine"
 
-                #$line
+                Write-Host $line
                 
                 #$splitLine
 
@@ -146,8 +153,8 @@ Function Parser
             }
             elseif($line -like "*not installed. The package was not found with the source(s) listed*")
             {
-                $notInstalledPackages = ""
-                Write-Warning $line
+                #$notInstalledPackages = ""
+                #Write-Warning $line
             }
             else
             {
@@ -181,11 +188,22 @@ Function Parser
         #write-host $_
         #>
     }
-    End {    
+    End {
+    
+        <#
+            The installation process is done
+            It is now time to check if the force parameter is set, or if some packages already are installed. This will promt the user if he/she wants to force the installation
+        #>        
+        Write-Host "`n============================="
+        Write-Host "Ending ChocoPower Installer"
+        Write-Host "Hold on.. Checking for status"
+        Write-Host "=============================`n"  
      
         if($forceDetected -eq $true -or $installedPackages)
         {
-            #Write-Warning "Force detected"
+
+           
+
             Write-Warning "Some packages are installed"
             Write-Warning "Do you want to re-run the installer with --force?"
             Write-Warning "This applies to the following package(s):"
