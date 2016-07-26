@@ -1,3 +1,16 @@
+<#
+    ChocoPower
+    
+    Installing Chocolatey packages in PowerShell
+#>
+
+<#
+    function: Package-Install
+
+    Will install the packages
+    Checks for the -force parameter
+#>
+
 function Package-Install
 {
     Param (
@@ -44,13 +57,18 @@ function Ask-User {
     $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", `
     "Abort"
 
+    $selectPackages = New-Object System.Management.Automation.Host.ChoiceDescription "&Select packages", `
+    "Select which packages that will be forced"
+
     $help = New-Object System.Management.Automation.Host.ChoiceDescription "&More info", `
     "Install the packages manually with...."
 
     $log = New-Object System.Management.Automation.Host.ChoiceDescription "&Open log", `
     "Opens the chocolatey.log in notepad.exe"
 
-    $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no, $help, $log)
+
+
+    $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no, $selectPackages, $help, $log)
     
     $result = $host.ui.PromptForChoice($title, $message, $options, 1) 
 
@@ -68,17 +86,27 @@ function Ask-User {
         
         1
         {
-            #"Abort"
+            exit
         }
 
-        # Output if More info is selected
+        # If Select packages is selected
 
         2
+        {
+            Write-Host ""
+            Write-Host "You can select which packages you want to force install. Select by writing the number(s) of the package(s)"
+            Write-Host "E.g. for package 0: 0"
+            Write-Host "E.g.: for several packages: 0, 3, 7"
+        }
+        
+        # Output if More info is selected
+
+        3
         {
             Write-Host "Refer to the installation manual...."
         }
 
-        3
+        4
         {
             notepad C:\ProgramData\chocolatey\logs\chocolatey.log
         }
@@ -96,7 +124,8 @@ Function Parser
         <#
             Creating an Array for saving installed packages for later output
         #>
-        $installedPackages = New-Object System.Collections.Generic.List[System.Object]
+        #$installedPackages = New-Object System.Collections.Generic.List[System.Object]
+        $installedPackages = New-Object System.Collections.ArrayList
 
         <#
             Writing information about the installer
@@ -122,7 +151,7 @@ Function Parser
             {
                 $splitLine = $line -split ' already installed.'
 
-                $installedPackages.Add($splitLine)
+                $installedPackages.Add($splitLine) | Out-Null
 
                 Write-Host $line
 
@@ -140,19 +169,6 @@ Function Parser
 
         }
 
-        <#
-        if($_ -eq " Use --force to reinstall, specify a version to install, or try upgrade.")
-        {
-            Write-Host "Use -force to reinstall, specify a version to install, or try upgrade."
-            $forceDetected = $true;
-        }
-        else 
-        {
-            $message = $_
-            Write-Host $message
-        }
-        #write-host $_
-        #>
     }
     End {
     
@@ -175,10 +191,11 @@ Function Parser
             Write-Warning "Do you want to re-run the installer with --force?"
             Write-Warning "This applies to the following package(s):"
 
-            foreach($installedPackage in $installedPackages)
+            for($i=0; $i -le $installedPackages.Count-1; $i++)
             {
-                Write-Host "- " $installedPackage
+                Write-Host ""$i":" $installedPackages[$i]
             }
+
 
             <#
                 Promting the user for further action
@@ -189,5 +206,9 @@ Function Parser
         }
     }
 }
+
+<#
+    Executes this nice installer
+#>
 
 Package-Install -package ruby vlc | Parser
