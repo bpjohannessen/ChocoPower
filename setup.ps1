@@ -47,7 +47,50 @@ function Package-Install
     }
 }
 
+<#
+    function: Select-Package-Instal
+
+    Will force install selected packages
+#>
+
+function Select-Package-Install
+{
+
+    Param (
+        [string] $forcePackages
+    )
+
+    <#
+        Array to contain packages in
+    #>
+    
+    $toBeForced = New-Object System.Collections.ArrayList
+
+    <#
+        The user might input
+        1,3, 7 , 7, 9, 0, 11,  2
+        And we need to fix this
+    #>
+
+    $temp = $forcePackages -replace " ",""
+    $toBeForced = $temp -split ","
+
+    foreach($f in $toBeForced)
+    {
+        Write-Host $f
+    }
+
+    Write-Host "Welcome to the Select-Package-Install"
+}
+
+<#
+    function: Ask-User
+
+    Will ask the user what do to if packages already are installed
+#>
+
 function Ask-User {
+
     $title = "Add force parameter?"
     $message = "Do you want to re-run the installer with --force? Se [M] More info for information about installing packages manually"
     
@@ -65,8 +108,6 @@ function Ask-User {
 
     $log = New-Object System.Management.Automation.Host.ChoiceDescription "&Open log", `
     "Opens the chocolatey.log in notepad.exe"
-
-
 
     $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no, $selectPackages, $help, $log)
     
@@ -97,6 +138,12 @@ function Ask-User {
             Write-Host "You can select which packages you want to force install. Select by writing the number(s) of the package(s)"
             Write-Host "E.g. for package 0: 0"
             Write-Host "E.g.: for several packages: 0, 3, 7"
+
+            $forcePackages = Read-Host -Prompt "Which packages do you want to install?"
+
+            ##
+
+            Select-Package-Install -forcePackages $forcePackages
         }
         
         # Output if More info is selected
