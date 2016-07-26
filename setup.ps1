@@ -130,29 +130,12 @@ Function Parser
 
                 $installedPackages.Add($splitLine)
 
-                #$installedPackages += $splitLine
-                #$installed = $installedPackages -replace "`n|`r"
-                #$array -replace "`n|`r"
-                
-                #Write-Warning "Split line: $splitLine"
-
                 Write-Host $line
-                
-                #$splitLine
 
-
-                #Write-Warning "--$line"
-                #$getWarningPackage = $line.Split("already")
-                #Write-Warning $getWarningPackage[1]
-
-               # Write-Host ($getWarningPackage | Format-Table | Out-String)
-
-                #Write-Warning $getWarningPackage[1]
-                #$warningPackages = ""
-                #Write-Warning $line
             }
             elseif($line -like "*not installed. The package was not found with the source(s) listed*")
             {
+                # not complete
                 #$notInstalledPackages = ""
                 #Write-Warning $line
             }
@@ -161,17 +144,6 @@ Function Parser
                 Write-Host $line
             }
 
-            #Write-Host $line
-
-            #if($line -eq " Use --force to reinstall, specify a version to install, or try upgrade.")
-            #{
-            #    $line = " Use -force to reinstall, specify a version to install, or try upgrade."
-            #}
-            #else
-            #{
-            #    Select-String -InputObject $line -Pattern "already installed."
-                #Write-Host $line | Select-String -Pattern "asdasdasdasasda."
-            #}
         }
 
         <#
