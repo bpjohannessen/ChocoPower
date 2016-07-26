@@ -1,4 +1,4 @@
 # ChocoPower
 Smart chocolatey installer for PowerShell
 
-!(chocopower.png)
+![Image for ChocoPower](chocopower.png)
