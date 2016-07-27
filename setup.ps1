@@ -28,22 +28,13 @@ function Package-Install
 
     Process
     {
-        if($force -eq $true)
-        {
-           # Write-Warning "Force is true"
-        }
-        else
-        {
-            #Write-Warning "Force is false"            
-        }
-
         $chocoCommand = "choco install $package vlc -y $forceParameter"
         iex $chocoCommand
     }
 
     End
     {
-        #Write-Host "Now in End"
+        # Insert any code to execute post-install
     }
 }
 
@@ -60,38 +51,7 @@ function Select-Package-Install
         [System.Collections.ArrayList]$toInstall
     )
 
-    #Write-Warning "In Select-Package-Install. Checking datatypes of packageOptions and toInstall now"
-    #Write-Host ""
-    
-    $packageOptions.GetType()
-
-    foreach($x in $packageOptions) { Write-Host $x }
-
-   # Write-Warning "toInstall GetType::"
-
-    #$toInstall.GetType()
-    #$toInstall.Count
-
-    #
-    # This is a lot of debugging going on
-    # The variable does only have one key????
-    #
-
-
-    #Write-Warning "----------------"
-
-    #$toInstall[0]
-    #
-    #Write-Warning "xxxx"
-
-    #$toInstall[1]
-
-    #Write-Warning "?"
-
-    #foreach($z in $toInstall)
-    #{
-    #    Write-Host $z
-    #}
+    #foreach($x in $packageOptions) { Write-Host $x }
 
     <#
         Array to contain packages in
@@ -99,14 +59,14 @@ function Select-Package-Install
     
     $toBeForced = New-Object System.Collections.ArrayList
 
-    Write-Host "-------"
+    Write-Host ""
     Write-Host "You have " $packageOptions.Count " options for installable packages"
     Write-Host "You have chosen " $toInstall.Count "packages to install"
     Write-Host "Is this a match?"
 
     if($toInstall.Count -le $packageOptions.Count)
     {
-        Write-Host "Match"
+        
     }
     else
     {
@@ -125,15 +85,6 @@ function Select-Package-Install
 
         $temp = $packageOptions[$to] -replace " v"," -version "
         $toBeForced.Add($temp) | Out-Null
-        #Write-Host $temp
-
-    }
-
-    Write-Host "Fixed"
-
-    foreach($a in $toBeForced)
-    {
-        Write-Host $a
     }
 
     $title = "Force install?"
@@ -155,13 +106,16 @@ function Select-Package-Install
 
         0
         {
+            Write-Host ""
+            Write-Host "Starting the reinstall.."
+
             foreach($toForce in $toBeForced)
             {
                 $chocoCommand = "choco install $toForce -y --force"
                 iex $chocoCommand
             }
             
-            Write-Host "Reinstalling"
+
         }
 
         # Output if No is selected
@@ -184,12 +138,7 @@ function Ask-User {
 
     Param (
         [System.Collections.ArrayList]$packageOptions
-    )
-
-    Write-Warning "Will foreach in Ask-User"
-
-    foreach($n in $packageOptions) { Write-host $n }
-       
+    )      
 
     $title = "Add force parameter?"
     $message = "Do you want to re-run the installer with --force? Se [M] More info for information about installing packages manually"
@@ -240,8 +189,9 @@ function Ask-User {
 
             Write-Host ""
             Write-Host "You can select which packages you want to force install. Select by writing the number(s) of the package(s)"
-            Write-Host "E.g. for package 0: 0"
-            Write-Host "E.g.: for several packages: 0, 3, 7"
+            Write-Host " E.g. for package 0: 0"
+            Write-Host " E.g.: for several packages: 0, 3, 7"
+            Write-Host ""
             
             $readForcePackages = Read-Host -Prompt "Which packages do you want to install?"
 
@@ -363,23 +313,18 @@ Function Parser
             Write-Warning "Some packages are installed"
             Write-Warning "Do you want to re-run the installer with --force?"
             Write-Warning "This applies to the following package(s):"
+            Write-Host ""
 
             for($i=0; $i -le $installedPackages.Count-1; $i++)
             {
-                Write-Host ""$i":" $installedPackages[$i]
+                Write-Host "     "$i":" $installedPackages[$i]
             }
-
 
             <#
                 Promting the user for further action
                 Sending the list of installed packages in
                 (Probably not a good solution)
             #>
-            #Write-Host "Will do Ask-User -packageOptions installedPackages -- this is crucial!!"
-            #Write-Host "Checking datatype of installedPackages"
-
-            $installedPackages.GetType()
-
             Ask-User -packageOptions $installedPackages
          
         }
