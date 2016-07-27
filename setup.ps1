@@ -100,8 +100,8 @@ function Select-Package-Install
     $toBeForced = New-Object System.Collections.ArrayList
 
     Write-Host "-------"
-    Write-Host "You have $packageOptions.Count options for installable packages"
-    Write-Host "You have chosen $toInstall.Count packages to install"
+    Write-Host "You have " $packageOptions.Count " options for installable packages"
+    Write-Host "You have chosen " $toInstall.Count "packages to install"
     Write-Host "Is this a match?"
 
     if($packageOptions.Count -eq $toInstall.Count)
