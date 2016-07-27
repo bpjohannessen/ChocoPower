@@ -104,31 +104,74 @@ function Select-Package-Install
     Write-Host "You have chosen " $toInstall.Count "packages to install"
     Write-Host "Is this a match?"
 
-    if($packageOptions.Count -eq $toInstall.Count)
+    if($toInstall.Count -le $packageOptions.Count)
     {
         Write-Host "Match"
     }
     else
     {
-        Write-Host "No match"
+        Write-Host "No match. Exiting."
+        exit
     }
-
-    <#
-        The user might input
-        1,3, 7 , 7, 9, 0, 11,  2
-        And we need to fix this
-    #>
-
-    #$temp = $forcePackages -replace " ",""
-    #$toBeForced = $temp -split ","
-
-    #foreach($f in $toBeForced)
-    #{
-    #    Write-Host $f
-    #}
 
     Write-Host ""
     Write-Host "Welcome to the Select-Package-Install"
+
+    Write-Host "You have selected the following packages to force install:"
+
+    foreach($to in $toInstall)
+    {
+        Write-Host $packageOptions[$to]
+
+        $temp = $packageOptions[$to] -replace " v"," -version "
+        $toBeForced.Add($temp) | Out-Null
+        #Write-Host $temp
+
+    }
+
+    Write-Host "Fixed"
+
+    foreach($a in $toBeForced)
+    {
+        Write-Host $a
+    }
+
+    $title = "Force install?"
+    $message = "Do you want to re-run the installer with -force for these two packages?"
+    
+    $yes = New-Object System.Management.Automation.Host.ChoiceDescription "&Yes", `
+    "Re-run with --force"
+    
+    $no = New-Object System.Management.Automation.Host.ChoiceDescription "&No", `
+    "Abort"
+
+    $options = [System.Management.Automation.Host.ChoiceDescription[]]($yes, $no)
+    
+    $result = $host.ui.PromptForChoice($title, $message, $options, 1) 
+
+    switch ($result)
+    {
+        # Output if Yes is selected
+
+        0
+        {
+            foreach($toForce in $toBeForced)
+            {
+                $chocoCommand = "choco install $toForce -y --force"
+                iex $chocoCommand
+            }
+            
+            Write-Host "Reinstalling"
+        }
+
+        # Output if No is selected
+        
+        1
+        {
+            Write-Host "Exiting"
+            exit
+        }
+    }
 }
 
 <#
