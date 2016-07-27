@@ -169,7 +169,7 @@ function Ask-User {
 
         0
         {
-            testInstall -package ruby -force
+            Package-Install -package ruby vlc -force
         }
 
         # Output if No is selected
