@@ -1,8 +1,54 @@
 <#
+
     ChocoPower
     
     Installing Chocolatey packages in PowerShell
+
+    FUNCTION SUMMARY
+
+    ========================
+
+    Package-Install
+      Parameters:
+        [string] $package
+        [switch] $force = false
+      
+      Installs $package
+      Adds --force if $force is set        
+
+    -------------------------
+
+    Select-Package-Install
+      Parameters:
+        [System.Collections.ArrayList]$packageOptions
+        [System.Collections.ArrayList]$toInstall
+
+      Installs the selected packages ($toInstall) from $packageOptions
+
+    -------------------------
+
+    Ask-User
+      Parameters:
+        [System.Collections.ArrayList]$packageOptions
+
+      Asks the user if he/she wants to force install already instaled packages ($packageOptions)
+
+    -------------------------
+
+    Parser
+
+      Parses the Chocolatey output. If there are any installed packages, each package is added into the array $installedPackage, and the function Ask-User is called
+        
 #>
+
+<#
+    Checking args for packages to be installed
+#>
+
+foreach($arg in $args)
+{
+  $packages +=$arg + ' '
+}
 
 <#
     function: Package-Install
@@ -30,7 +76,7 @@ function Package-Install
 
     Process
     {
-        $chocoCommand = "choco install $package vlc firefox -y $forceParameter"
+        $chocoCommand = "choco install $package -y $forceParameter"
         Invoke-Expression $chocoCommand
     }
 
@@ -59,10 +105,10 @@ function Select-Package-Install
     
     $toBeForced = New-Object System.Collections.ArrayList
 
-    Write-Host ''
-    Write-Host 'You have ' $packageOptions.Count ' options for installable packages'
-    Write-Host 'You have chosen ' $toInstall.Count 'packages to install'
-    Write-Host 'Is this a match?'
+    #Write-Host ''
+    #Write-Host 'You have ' $packageOptions.Count ' options for installable packages'
+    #Write-Host 'You have chosen ' $toInstall.Count 'packages to install'
+    #Write-Host 'Is this a match?'
 
     if($toInstall.Count -le $packageOptions.Count)
     {
@@ -70,12 +116,13 @@ function Select-Package-Install
     }
     else
     {
-        Write-Host 'No match. Exiting.'
+        Write-Host 'Something went wrong. Double check which packages you want to force install.'
+        #Write-Error '..sss'
         exit
     }
 
-    Write-Host ''
-    Write-Host 'Welcome to the Select-Package-Install'
+    #Write-Host ''
+    #Write-Host 'Welcome to the Select-Package-Install'
 
     Write-Host 'You have selected the following packages to force install:'
 
@@ -87,7 +134,7 @@ function Select-Package-Install
         $toBeForced.Add($temp) | Out-Null
     }
 
-    $title = 'Force install?'
+    $title = ''#Force install?'
     $message = 'Do you want to re-run the installer with -force for these two packages?'
     
     $yes = New-Object System.Management.Automation.Host.ChoiceDescription '&Yes', `
@@ -140,7 +187,7 @@ function Ask-User {
         [System.Collections.ArrayList]$packageOptions
     )      
 
-    $title = 'Add force parameter?'
+    $title = ''#Add force parameter?'
     $message = 'Do you want to re-run the installer with --force? Se [M] More info for information about installing packages manually'
     
     $yes = New-Object System.Management.Automation.Host.ChoiceDescription '&Yes', `
@@ -169,7 +216,7 @@ function Ask-User {
 
         0
         {
-            Package-Install -package ruby vlc -force
+            Package-Install -package $packages -force
         }
 
         # Output if No is selected
@@ -335,4 +382,4 @@ Function Parser
     Executes this nice installer
 #>
 
-Package-Install -package ruby vlc firefox | Parser
+Package-Install -package $packages | Parser
