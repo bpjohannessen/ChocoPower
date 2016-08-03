@@ -65,7 +65,7 @@ foreach($arg in $args)
 function Install-Package
 {
     Param (
-        [string] $package,
+        [string] $package = $null,
         [switch] $force = $false
     )
 
@@ -98,8 +98,8 @@ function Install-Package
 function Install-SelectedPackage
 {
     Param (
-        [System.Collections.ArrayList]$packageOptions,
-        [System.Collections.ArrayList]$toInstall
+        [System.Collections.ArrayList]$packageOptions = $null,
+        [System.Collections.ArrayList]$toInstall = $null
     )
 
     <#
@@ -108,11 +108,6 @@ function Install-SelectedPackage
     
     $toBeForced = New-Object System.Collections.ArrayList
 
-    #Write-Host ''
-    #Write-Host 'You have ' $packageOptions.Count ' options for installable packages'
-    #Write-Host 'You have chosen ' $toInstall.Count 'packages to install'
-    #Write-Host 'Is this a match?'
-
     if($toInstall.Count -le $packageOptions.Count)
     {
         
@@ -120,12 +115,8 @@ function Install-SelectedPackage
     else
     {
         Write-Host 'Something went wrong. Double check which packages you want to force install.'
-        #Write-Error '..sss'
         exit
     }
-
-    #Write-Host ''
-    #Write-Host 'Welcome to the Install-SelectedPackage'
 
     Write-Host 'You have selected the following packages to force install:'
 
@@ -187,7 +178,7 @@ function Install-SelectedPackage
 function Request-User {
 
     Param (
-        [System.Collections.ArrayList]$packageOptions
+        [System.Collections.ArrayList]$packageOptions = $null
     )      
 
     $title = 'Add force parameter?'
@@ -226,6 +217,9 @@ function Request-User {
         
         1
         {
+            Write-Host "`r"
+            Write-Host 'Not forcing package(s). Exiting.'
+            Write-Host "`r"
             exit
         }
 
@@ -235,7 +229,7 @@ function Request-User {
         {
 
             #array for 1,2,3 etc
-            $tempx = New-Object System.Collections.ArrayList
+            $toInstall = New-Object System.Collections.ArrayList
 
             Write-Host ''
             Write-Host 'You can select which packages you want to force install. Select by writing the number(s) of the package(s)'
@@ -245,31 +239,11 @@ function Request-User {
             
             $readForcePackages = Read-Host -Prompt 'Which packages do you want to install?'
 
-            #$readForcePackages
-
-
-            ##
-
-            #foreach($a in $packageOptions) { Write-Host "- $a" }
-
-            #Write-Host "Will do Install-SelectedPackage"
-            #Write-Host "Checking datatype of readForcePackages"
-
             $temp = $readForcePackages.Replace(' ', '')
 
-            $tempx = $temp.Split(',')
-
-            #Write-Warning "tempx gettype"
-
-            #$tempx.GetType()
-
-
-            #$temp3 = $temp -split ","
-            #$temp2.Add($temp3)
-            #$temp2 = $readForcePackages           
-
-            
-            Install-SelectedPackage -packageOptions $packageOptions -toInstall $tempx #$readForcePackages
+            $toInstall = $temp.Split(',')
+                        
+            Install-SelectedPackage -packageOptions $packageOptions -toInstall $toInstall
         }
         
         # Output if More info is selected
