@@ -44,6 +44,13 @@
 #>
 
 <#
+    Global variables
+#>
+
+[int]$installErrors = 0
+[int]$notInstalledPackages = 0
+
+<#
     Checking args for packages to be installed
     Whatever arguments with parameters that are given will treated as packages!
 #>
@@ -267,6 +274,8 @@ function Request-User {
 Function Read-ChocoOutput
 {
 
+
+
     Begin {
         <#
             Creating an Array for saving installed packages for later output
@@ -285,39 +294,52 @@ Function Read-ChocoOutput
     }
 
     Process {
-
+ 
         foreach($line in $_)
-        {
-
-            if($line -like '*Use --force to reinstall, specify a version to install, or try upgrade*')
+        {        
+            switch -wildcard ($line)
             {
-                $forceLine = ' Use -force to reinstall, specify a version to install, or try upgrade'
-                $forceLine
-            }
-            elseif($line -like '* already installed*')
-            {
-                $splitLine = $line -split ' already installed.'
-
-                $installedPackages.Add($splitLine) | Out-Null
-
-                Write-Host $line
-
-            }
-            elseif($line -like '*not installed. The package was not found with the source(s) listed*')
-            {
-                # not complete
-                #$notInstalledPackages = ""
-                #Write-Warning $line
-            }
-            elseif($line -like '*Package name is required. Please pass at least one package name to install.*')
-            {
-                $noPackageSet = $true
-                Write-Warning $line
-            }
-            else
-            {
-                Write-Host $line
-            }
+                '*Use --force to reinstall, specify a version to install, or try upgrade*'
+                {
+                    Write-Host '*Use --force to reinstall, specify a version to install, or try upgrade*' -ForegroundColor DarkGreen
+                    $forceLine = ' Use -force to reinstall, specify a version to install, or try upgrade'
+                    Write-Host $forceLine
+                }
+              
+                '* already installed*'
+                {
+                    $splitLine = $line -split ' already installed.'
+                    $installedPackages.Add($splitLine) | Out-Null
+                    Write-Host $line
+                    $notInstalledPackages++
+                }
+              
+                '*not installed. The package was not found with the source(s) listed*'
+                {
+                    Write-Host $line -ForegroundColor Red
+                    $installErrors++
+                    $notInstalledPackages++
+                }
+              
+                '*If you specified a particular version and are receiving this message, it is possible that the package name exists but the version does not.*'
+                {
+                    Write-Host $line -ForegroundColor Red
+                }
+              
+                '*Package name is required. Please pass at least one package name to install.*'
+                {
+                    Write-Host $line -ForegroundColor Red
+                    $installErrors++
+                    $noPackageSet = $true
+                }  
+              
+                Default
+                {
+                    #Write-Host 'Default in switch' -ForegroundColor DarkGreen
+                    Write-Host $line
+                }              
+              
+            }           
 
         }
 
@@ -327,14 +349,33 @@ Function Read-ChocoOutput
         <#
             The installation process is done
             It is now time to check if the force parameter is set, or if some packages already are installed. This will promt the user if he/she wants to force the installation
-        #>        
+        #>
+        
+        if($notInstalledPackages -eq 1)
+        {
+            Write-Host "`n$notInstalledPackages package was not installed" -ForegroundColor Red
+        }
+        elseif($notInstalledPackages -gt 1)
+        {
+            Write-Host "`n$notInstalledPackages packages were not installed`n" -ForegroundColor Red
+        }
+        
+        if($installErrors -ge 1)
+        {            
+            Write-Host "There were $installErrors errors. Exiting.`n" -ForegroundColor Red
+            exit
+        }
+        
+                
         Write-Host "`n============================="
         Write-Host 'Ending ChocoPower Installer'
         if($noPackageSet -ne $true)
         {
             Write-Host 'Hold on.. Checking for status'
         }
-        Write-Host "=============================`n"  
+        Write-Host "=============================`n"
+        
+          
      
         if($forceDetected -eq $true -or $installedPackages)
         {
