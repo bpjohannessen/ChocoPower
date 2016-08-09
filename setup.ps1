@@ -51,7 +51,7 @@
 [int]$notInstalledPackages = 0
 
 <#
-    Checking args for packages to be installed
+    Checking args for packages to be installed.
     Whatever arguments with parameters that are given will treated as packages!
 #>
 
@@ -61,10 +61,38 @@ foreach($arg in $args)
 }
 
 <#
+    function: Test-ChocolateyVersion
+
+    Will check if Chocolatey is installed.
+    Will check if Chocolatey version is not equal to 0.9.9.12 (newer version of Chocolatey breaks my scripts). Uncomment last if() {..} if this is not required for you.
+
+#>
+
+function Test-ChocolateyVersion
+{
+    $requiredChocoVersion = '0.9.9.12'
+    $installedChocoVersion = choco --version
+
+    $ChocoAlreadyInstalled = get-command choco -ErrorAction 0
+    if ($ChocoAlreadyInstalled -eq $null)
+    {
+        Write-Warning "Chocolatey is not installed. See the documentation for Chocolatey on how to install version $requiredChocoVersion"
+        exit
+    }
+        
+    if($installedChocoversion -ne $requiredChocoVersion)
+    {
+        Write-Warning "Chocolatey version $installedChocoVersion is installed. Required version is $requiredChocoVersion"
+        exit
+    }
+}
+
+
+<#
     function: Install-Package
 
-    Will install the packages
-    Checks for the -force parameter
+    Will install the packages.
+    Checks for the -force parameter.
 
     Todo: Parse $package
 #>
@@ -267,10 +295,11 @@ function Request-User {
     }
 }
 
-#
-# Parses the output
-# Replaces "--force" with "-force"
-# If "--force" is detected, ask the user with Request-User
+<#
+    function: Read-ChocoOutput
+Parses the output Replaces "--force" with "-force"
+If "--force" is detected, ask the user with Request-User
+#>
 Function Read-ChocoOutput
 {
 
@@ -280,7 +309,7 @@ Function Read-ChocoOutput
         <#
             Creating an Array for saving installed packages for later output
         #>
-        #$installedPackages = New-Object System.Collections.Generic.List[System.Object]
+
         $installedPackages = New-Object System.Collections.ArrayList
 
         <#
@@ -331,42 +360,24 @@ Function Read-ChocoOutput
                     Write-Host $line -ForegroundColor Red
                     $installErrors++
                     $noPackageSet = $true
-                }  
+                }     
               
                 Default
                 {
                     #Write-Host 'Default in switch' -ForegroundColor DarkGreen
                     Write-Host $line
-                }              
-              
-            }           
-
+                }
+            }
         }
-
     }
+    
     End {
     
         <#
             The installation process is done
             It is now time to check if the force parameter is set, or if some packages already are installed. This will promt the user if he/she wants to force the installation
         #>
-        
-        if($notInstalledPackages -eq 1)
-        {
-            Write-Host "`n$notInstalledPackages package was not installed" -ForegroundColor Red
-        }
-        elseif($notInstalledPackages -gt 1)
-        {
-            Write-Host "`n$notInstalledPackages packages were not installed`n" -ForegroundColor Red
-        }
-        
-        if($installErrors -ge 1)
-        {            
-            Write-Host "There were $installErrors errors. Exiting.`n" -ForegroundColor Red
-            exit
-        }
-        
-                
+              
         Write-Host "`n============================="
         Write-Host 'Ending ChocoPower Installer'
         if($noPackageSet -ne $true)
@@ -398,8 +409,29 @@ Function Read-ChocoOutput
                 Sending the list of installed packages in
                 (Probably not a good solution)
             #>
-            Request-User -packageOptions $installedPackages
+
+            $installedPackages.GetType()
+
+            $requestUserCommand = "Request-User -packageOptions $installedPackages"
+
+            Write-Host $requestUserCommand
+            exit
          
+        }
+        
+        if($notInstalledPackages -eq 1)
+        {
+            Write-Host "`n$notInstalledPackages package was not installed" -ForegroundColor Red
+        }
+        elseif($notInstalledPackages -gt 1)
+        {
+            Write-Host "`n$notInstalledPackages packages were not installed`n" -ForegroundColor Red
+        }
+        
+        if($installErrors -ge 1)
+        {            
+            Write-Host "There were $installErrors errors. Exiting.`n" -ForegroundColor Red
+            exit
         }
     }
 }
